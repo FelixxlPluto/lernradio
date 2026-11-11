@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16163a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Lernradio</title>
+<style>
+:root{--bg:#e8e7f6;--ink:#17173a;--mute:#5d5c86;--panel:#f6f5fd;--line:#c9c8e6;--go:#ffd23f;--go-ink:#17173a}
+@media (prefers-color-scheme:dark){:root{--bg:#16163a;--ink:#f1f0ff;--mute:#a3a2d0;--panel:#20204e;--line:#34346b}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:ui-rounded,"Nunito","Trebuchet MS",system-ui,sans-serif;display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px);max-width:520px;margin:0 auto}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--go);outline-offset:3px}
+svg{width:46px;height:46px;fill:currentColor;display:block}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px}
+h1{font-size:1.15rem;margin:0;font-weight:800}
+.pill{padding:9px 16px;border-radius:999px;background:var(--panel);font-size:.88rem}
+.goal{display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--mute)}
+.bar{flex:1;height:8px;border-radius:9px;background:var(--panel);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--go);border-radius:9px;transition:width .6s}
+main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:8px 0 12px}
+#art{width:min(52vw,230px);aspect-ratio:1;object-fit:cover;border-radius:28px;align-self:center;background:var(--panel)}
+.meta{text-align:center}
+#title{font-size:1.28rem;font-weight:800;line-height:1.25;margin:0 0 6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#show{color:var(--mute);margin:0;font-size:.92rem}
+#reason{max-width:100%;margin-top:10px;text-align:left;font-size:.8rem}
+#seek{width:100%;accent-color:var(--go);height:28px}
+.times{display:flex;justify-content:space-between;color:var(--mute);font-size:.82rem;margin-top:-6px}
+.ctl{display:flex;align-items:center;justify-content:center;gap:22px}
+.skip{width:60px;height:60px;border-radius:50%;background:var(--panel);font-weight:800}
+#play{width:100px;height:100px;border-radius:50%;background:var(--go);color:var(--go-ink);display:grid;place-items:center;box-shadow:0 7px 0 rgba(0,0,0,.18);transition:transform .08s,box-shadow .08s}
+#play:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.act{padding:11px 4px;border-radius:14px;background:var(--panel);font-size:.78rem;font-weight:700}
+.row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+#status{min-height:1.3em;text-align:center;color:var(--mute);font-size:.88rem;margin:0}
+dialog{border:0;padding:0;margin:auto auto 0;width:100%;max-width:520px;border-radius:26px 26px 0 0;background:var(--panel);color:var(--ink)}
+dialog::backdrop{background:rgba(10,10,30,.55)}
+.sh{max-height:88vh;overflow:auto;padding:16px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.shh{display:flex;justify-content:space-between;align-items:center}
+.ghost{width:44px;height:44px;border-radius:50%}
+h3{margin:0;font-size:1.1rem}h4{margin:18px 0 8px;font-size:.95rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 13px;border-radius:999px;background:var(--bg);border:2px solid var(--line);font-size:.86rem}
+.chip[aria-pressed=true]{background:var(--go);color:var(--go-ink);border-color:var(--go);font-weight:700}
+.add{display:flex;gap:8px;margin-top:10px}
+.add input,.add select,select{padding:9px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.add input{flex:1;min-width:0}.add button{padding:0 16px;border-radius:12px;background:var(--go);color:var(--go-ink);font-weight:800}
+.week{display:flex;gap:8px;align-items:flex-end;height:90px}
+.week div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.72rem;color:var(--mute);gap:3px}
+.week i{width:100%;background:var(--go);border-radius:6px;min-height:4px}
+.mu{color:var(--mute);font-size:.85rem;margin:4px 0}.wy{margin:0;padding-left:18px;font-size:.9rem}
+.qi{display:flex;gap:6px;align-items:flex-start;margin:10px 0}.qi>button:first-child{flex:1;text-align:left}
+.qi b{display:block}.qi small{display:block;color:var(--mute);margin-top:2px}
+.lw{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;font-size:.85rem;margin:6px 0}
+#saved{list-style:none;padding:0;margin:0}#saved li{margin:8px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#saved li>button:first-child{flex:1;text-align:left;font-weight:700}#saved small{flex-basis:100%;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){#play,.bar i{transition:none}}
+</style>
+</head>
+<body>
+<header><h1>Lernradio</h1><button class="pill" id="gear">Einstellungen</button></header>
+<div class="goal"><div class="bar"><i id="gbar"></i></div><span id="stat"></span></div>
+<main>
+  <img id="art" alt="" src="icon-512.png">
+  <div class="meta"><h2 id="title">Dein Programm wird geladen …</h2><p id="show"></p><button class="pill" id="reason" hidden></button></div>
+  <div><input id="seek" type="range" min="0" max="1" step="1" value="0" aria-label="Position"><div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div></div>
+  <div class="ctl"><button class="skip" id="back" aria-label="15 Sekunden zurück">−15</button><button id="play" aria-label="Abspielen"></button><button class="skip" id="fwd" aria-label="30 Sekunden vor">+30</button></div>
+  <div class="acts"><button class="act" id="down">Weniger davon</button><button class="act" id="up">Mehr davon</button><button class="act" id="next">Weiter</button><button class="act" id="fav">Merken</button></div>
+  <div class="row"><button class="pill" id="speed">1×</button><button class="pill" id="sleep">Timer aus</button><button class="pill" id="open">Mein Programm</button></div>
+  <p id="status"></p>
+</main>
+<dialog id="why"><div class="sh" id="whyb"></div></dialog>
+<dialog id="sheet"><div class="sh">
+  <div class="shh"><h3>Einstellungen</h3><button class="ghost" data-close aria-label="Schließen">✕</button></div>
+  <h4>Diese Woche</h4><div class="week" id="week"></div>
+  <h4>Tagesziel und Entdecken</h4>
+  <div class="row"><label>Ziel <select id="goal"><option>10</option><option>20</option><option>30</option><option>60</option></select> Min</label>
+  <label>Entdecken <select id="ex"><option value="0">0 %</option><option value="15">15 %</option><option value="25">25 %</option><option value="40">40 %</option></select></label></div>
+  <h4>Themen</h4><div class="chips" id="chips"></div>
+  <div class="add"><input id="own" placeholder="Eigenes Thema, z. B. Postwachstum"><select id="ol" aria-label="Sprache"><option value="de">DE</option><option value="en">EN</option></select><button id="addT" aria-label="Thema hinzufügen">+</button></div>
+  <h4>Sprachen</h4><div class="chips" id="langs"></div>
+  <h4>Gemerkt</h4><ul id="saved"></ul>
+  <div class="row" style="margin-top:18px"><button class="pill" id="saveT">Programm neu mischen</button><button class="pill" id="reset">Gelerntes löschen</button><button class="pill" id="bk">Backup kopieren</button><button class="pill" id="rs">Backup einfügen</button></div>
+</div></dialog>
+<audio id="a" preload="metadata"></audio>
+<script>
+const $=s=>document.querySelector(s),A=$('#a');
+const BT='Hörbücher (gemeinfrei)';
+const TH=(id,label,de,en,x)=>({id,label,on:true,x:!!x,qs:{de,en}});
+const THEMES=[TH('pol','Politik & Theorie','Politische Theorie Linke','political theory left'),TH('eco','Wirtschaft & Kapitalismuskritik','Kapitalismuskritik Ökonomie','political economy capitalism critique'),TH('klima','Klima','Klimagerechtigkeit Klimawandel','climate justice'),TH('ges','Gesellschaft & Soziales','Soziologie Gesellschaft','sociology society inequality'),TH('gesch','Geschichte','Geschichte','history'),TH('phil','Philosophie','Philosophie','philosophy'),TH('grow','Persönlich wachsen','Psychologie Selbstreflexion Gewohnheiten','stoicism psychology habits'),TH('kunst','Kunst & Kultur','Kunst Kultur','art history culture'),TH('deb','Debattieren','Rhetorik Argumentieren Debatte','critical thinking debate'),TH('gegen','Gegenpositionen (Debattier-Training)','konservative Politik Debatte','conservative vs progressive debate'),TH('book',BT,'','')];
+const EXP=[TH('entd','Entdecken','','',1),TH('x1','Stadt & Architektur','Architektur Stadtplanung','urbanism cities',1),TH('x2','Gehirn','Neurowissenschaft Gehirn','neuroscience brain',1),TH('x3','Sprache','Sprache Linguistik','linguistics language',1),TH('x4','Mythen','Mythologie Antike','mythology',1),TH('x5','Medienkritik','Medienkritik','media criticism',1),TH('x6','Utopien & Zukunft','Utopien Zukunft','utopia future society',1),TH('x7','Beziehungen','Psychologie Beziehungen','psychology relationships',1)];
+const TL={entd:'Entdecken'};THEMES.forEach(t=>TL[t.id]=t.label);
+/* Handverlesen: [Name, Sprache, Themen]. Die App findet jeden Podcast selbst und prüft den Namen. */
+const CUR=[['radioWissen','de','gesch phil ges kunst entd'],['SWR2 Wissen','de','gesch ges klima entd'],['Sein und Streit','de','phil deb'],['Essay und Diskurs','de','pol ges phil kunst'],['Zeitzeichen','de','gesch'],['Quarks Daily','de','entd klima'],
+['Philosophy Bites','en','phil deb'],['Philosophize This!','en','phil pol'],['History of Philosophy Without Any Gaps','en','phil gesch'],['Thinking Allowed','en','ges'],['The Philosopher\'s Zone','en','phil'],['99% Invisible','en','kunst entd ges'],['Radiolab','en','entd'],['Short Wave','en','entd klima'],['Throughline','en','gesch pol'],['The Happiness Lab','en','grow'],['The Daily Stoic','en','grow phil'],['How to Save a Planet','en','klima'],['Outrage + Optimism','en','klima'],['Mothers of Invention','en','klima ges'],['The Lonely Palette','en','kunst'],['Planet Money','en','eco entd'],['Revisionist History','en','ges gesch'],['Code Switch','en','ges pol'],['Hidden Brain','en','grow ges']];
+/* Gemeinfreie Hörbücher (LibriVox über archive.org): [Titel, Autor, Sprache] */
+const BOOKS=[['Mutual Aid','Kropotkin','en'],['Meditations','Marcus Aurelius','en'],['Letters from a Stoic','Seneca','en'],['On Liberty','Mill','en'],['The Soul of Man under Socialism','Wilde','en'],['Civil Disobedience','Thoreau','en'],['The Social Contract','Rousseau','en'],['Manifest der Kommunistischen Partei','Marx','de'],['Also sprach Zarathustra','Nietzsche','de'],['Nathan der Weise','Lessing','de'],['Die Verwandlung','Kafka','de']];
+const DEF={topics:THEMES,langs:{de:true,en:true},queue:[],played:[],saved:[],hist:[],log:{},pos:{},speed:1,tw:{},st:{},sn:{},cs:{},sm:{},ec:{},bk:{},bq:{},recent:[],cur:null,goal:20,ex:25};
+let S;try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('lr4')||'{}'))}catch(e){S={...DEF}}
+const save=()=>{try{localStorage.setItem('lr4',JSON.stringify(S))}catch(e){S.ec={};try{localStorage.setItem('lr4',JSON.stringify(S))}catch(_){}}};
+const status=t=>$('#status').textContent=t||'';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>{s=Math.max(0,s|0);const h=s/3600|0,m=(s%3600)/60|0,x=s%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')};
+const pick=(a,w)=>{let r=Math.random()*a.reduce((s,x)=>s+w(x),0);for(const x of a){r-=w(x);if(r<=0)return x}return a[0]};
+const IC={play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',pause:'<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'};
+$('#play').innerHTML=IC.play;
+
+/* ---------- Netz: gedrosselt (Apple erlaubt ca. 20 Anfragen/Min.), zwischengespeichert, tolerant ---------- */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function jsonp(u){return new Promise((res,rej)=>{const cb='cb'+Math.random().toString(36).slice(2),s=document.createElement('script'),t=setTimeout(()=>{s.remove();rej()},10000);window[cb]=d=>{clearTimeout(t);delete window[cb];s.remove();res(d)};s.src=u+'&callback='+cb;s.onerror=()=>{clearTimeout(t);rej()};document.head.append(s)})}
+let chain=Promise.resolve(),lastCall=0;
+function itunes(p){
+  const run=async()=>{
+    const w=3200-(Date.now()-lastCall);if(w>0)await sleep(w);lastCall=Date.now();
+    const u='https://itunes.apple.com/'+p;
+    for(let i=0;i<3;i++){
+      try{const r=await fetch(u);if(r.status===403||r.status===429){await sleep(8000*(i+1));lastCall=Date.now();continue}return (await r.json()).results||[]}
+      catch(e){try{return (await jsonp(u)).results||[]}catch(_){await sleep(1500)}}}
+    return[]};
+  const res=chain.then(run);chain=res.catch(()=>{});return res;
+}
+async function getJSON(u,jp){try{return await (await fetch(u)).json()}catch(e){if(!jp)return null;try{return await jsonp(u)}catch(_){return null}}}
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+const cc=l=>l==='en'?'US':'DE';
+const BAD=/trailer|vorschau|teaser|ankündigung|werbung|promo|preview|announcement|bonus|best of|rückblick/i;
+const hidden=id=>{const t=S.st[id];return !!t&&t.n>=2&&t.p/t.n<=.2};
+
+async function resolve(c){
+  const k=c[0]+'|'+c[1];if(k in S.cs)return S.cs[k];
+  const r=await itunes('search?media=podcast&entity=podcast&limit=8&country='+cc(c[1])+'&term='+encodeURIComponent(c[0]));
+  if(!r.length)return null;
+  const m=r.find(x=>x.collectionId&&norm(x.collectionName).includes(norm(c[0])));
+  return S.cs[k]=m?{id:m.collectionId,n:m.collectionName}:{id:0};
+}
+async function discover(t,lang){
+  const q=t.qs[lang];if(!q)return[];
+  const k='d|'+q,c=S.cs[k];if(c&&Date.now()-c.t<12096e5)return c.l;
+  const r=await itunes('search?media=podcast&entity=podcast&limit=25&country='+cc(lang)+'&term='+encodeURIComponent(q));
+  const l=r.filter(x=>x.collectionId&&x.trackCount>=15&&Date.now()-new Date(x.releaseDate)<150*864e5).map(x=>({id:x.collectionId,n:x.collectionName}));
+  if(r.length)S.cs[k]={t:Date.now(),l};return l;
+}
+async function showsFor(t,lang){
+  const l=CUR.filter(c=>c[1]===lang&&c[2].split(' ').includes(t.id)).map(c=>({key:c[0]+'|'+lang,c,sc:1}));
+  if(l.length<3||t.x)l.push(...(await discover(t,lang)).map(s=>({key:'i'+s.id,id:s.id,n:s.n,sc:.5})));
+  return l;
+}
+async function loadEps(ids,lang){
+  const need=ids.filter(i=>!(S.ec[i]&&Date.now()-S.ec[i].t<864e5));
+  for(let j=0;j<need.length;j+=4){
+    const part=need.slice(j,j+4),by={};
+    const r=await itunes('lookup?id='+part.join(',')+'&entity=podcastEpisode&limit=80&country='+cc(lang));
+    r.forEach(x=>{if(x.episodeUrl&&x.trackTimeMillis>=5*6e4&&x.trackTimeMillis<=30*6e4&&!BAD.test(x.trackName))(by[x.collectionId]=by[x.collectionId]||[]).push({i:String(x.trackId),u:x.episodeUrl,t:x.trackName,m:Math.round(x.trackTimeMillis/6e4),a:x.artworkUrl600||x.artworkUrl160})});
+    if(r.length)part.forEach(i=>S.ec[i]={t:Date.now(),l:(by[i]||[]).slice(0,40)});
+  }
+}
+function mk(e,id,lab){
+  const m=S.sm[id],t=S.st[id],n=t?t.n:0,sat=((t?t.p:0)+1)/(n+2),tw=S.tw[lab]||1;
+  const why=[m.x?'Entdecken: ein Thema neben deinen Favoriten ('+lab+')':'Dein Thema „'+lab+'“',
+    m.cur?'Handverlesener Podcast: „'+m.n+'“':'Podcast „'+m.n+'“ passt zum Thema und ist noch aktiv',
+    n?'Bisher '+Math.round(t.p)+' von '+n+' Folgen dieses Podcasts haben dir gefallen':'Neu für dich, ich teste ihn mit dieser Folge',
+    e.m+' Min, kurz genug für eine Pause'];
+  if(tw>1.3)why.splice(1,0,'Dieses Thema hörst du überdurchschnittlich gern');
+  return{id:e.i,url:e.u.replace(/^http:/,'https:'),title:e.t,show:m.n,showId:id,art:e.a,topic:lab,mins:e.m,why,k:(m.cur?1:.5)+sat+.6/Math.sqrt(n+1)+tw*.3+(e.m>=10&&e.m<=25?.25:0)+Math.random()*.4};
+}
+/* ---------- Hörbücher: gemeinfreie LibriVox-Kapitel, werden der Reihe nach weitergehört ---------- */
+const chap=(b,i)=>({id:'b:'+b.id+':'+i,url:b.ch[i].u,title:b.t+', Kapitel '+(i+1)+' von '+b.ch.length,show:b.a,showId:'b:'+b.id,art:'icon-512.png',topic:BT,mins:b.ch[i].m,kind:'book',bid:b.id,ci:i,k:2,
+  why:['Hörbuch: „'+b.t+'“ von '+b.a+' (gemeinfrei, LibriVox)',i?'Du hörst dieses Buch Kapitel für Kapitel weiter':'Neues Hörbuch, ausgewählt aus einer Liste klassischer Texte zu deinen Themen',b.ch[i].m+' Min, kurz genug für eine Pause']});
+async function bookItem(){
+  const run=Object.values(S.bk).find(b=>!b.done&&!S.queue.some(e=>e.bid===b.id)&&!(cur&&cur.bid===b.id));
+  if(run)return chap(run,run.i);
+  if(Math.random()>.25*(S.tw[BT]||1))return null;
+  const c=BOOKS.filter(b=>S.langs[b[2]]&&!S.bq[b[0]]);if(!c.length)return null;
+  const [t,a]=c[Math.random()*c.length|0];S.bq[t]=1;save();
+  const q='collection:librivoxaudio AND title:("'+t+'") AND creator:('+a+')';
+  const r=await getJSON('https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&rows=3&output=json',1);
+  const d=r&&r.response&&r.response.docs&&r.response.docs[0];if(!d)return null;
+  const m=await getJSON('https://archive.org/metadata/'+d.identifier);if(!m||!m.files)return null;
+  let f=m.files.filter(x=>x.format==='VBR MP3'&&x.length);if(!f.length)f=m.files.filter(x=>/64Kbps MP3/.test(x.format)&&x.length);
+  f.sort((x,y)=>x.name.localeCompare(y.name,'en',{numeric:true}));
+  const ch=f.map(x=>({u:'https://archive.org/download/'+d.identifier+'/'+encodeURIComponent(x.name),s:parseFloat(x.length)})).filter(x=>x.s>=60);
+  if(ch.length<2||ch.some(x=>x.s>1830))return null;
+  const b=S.bk[d.identifier]={id:d.identifier,t:String(d.title).replace(/\s*\(.*?\)\s*$/,''),a:String(Array.isArray(d.creator)?d.creator[0]:(d.creator||'Unbekannt')),ch:ch.map(x=>({u:x.u,m:Math.round(x.s/60)})),i:0};
+  save();return chap(b,0);
+}
+/* ---------- Auswahl ---------- */
+let busy=0;
+async function refill(n=4){
+  if(busy)return;busy=1;
+  try{
+    const act=S.topics.filter(t=>t.on&&t.id!=='book'),lg=['de','en'].filter(l=>S.langs[l]);
+    if(!lg.length||!(act.length||S.ex)){status('Wähle in den Einstellungen mindestens ein Thema und eine Sprache.');return}
+    status('Stelle dein Programm zusammen …');
+    const reg=s=>{const id=s.id||(S.cs[s.key]||{}).id;return id&&S.sm[id]},picks=[];
+    for(let i=0;i<n;i++){
+      const x=!act.length||Math.random()*100<S.ex,lang=lg[Math.random()*lg.length|0];
+      const t=x?EXP[Math.random()*EXP.length|0]:pick(act,t=>S.tw[t.label]||1);
+      const l=(await showsFor(t,lang)).filter(s=>!reg(s)&&!(s.c&&S.cs[s.key]&&!S.cs[s.key].id)&&!picks.some(p=>p.s.key===s.key));
+      if(l.length)picks.push({t,lang,s:pick(l,s=>s.sc)});
+    }
+    for(const lang of lg){
+      const mine=picks.filter(p=>p.lang===lang);
+      for(const p of mine)if(p.s.c){const r=await resolve(p.s.c);if(r&&r.id){p.s.id=r.id;p.s.n=r.n}else p.s=null}
+      const ok=mine.filter(p=>p.s);
+      ok.forEach(p=>{const m=S.sm[p.s.id]||(S.sm[p.s.id]={n:p.s.n,cur:!!p.s.c,th:[],lang,x:!!p.t.x});if(!m.th.includes(p.t.label))m.th.push(p.t.label)});
+      await loadEps(ok.map(p=>p.s.id),lang);
+    }
+    const seen=new Set([...S.played,...S.queue.map(e=>e.id),cur?cur.id:'']),on=new Set(act.map(t=>t.label)),cand=[];
+    for(const id in S.sm){const m=S.sm[id];if(!S.langs[m.lang]||hidden(id))continue;
+      const ths=m.th.filter(l=>on.has(l)||(m.x&&S.ex>0));if(!ths.length)continue;
+      const lab=ths[Math.random()*ths.length|0];
+      for(const e of ((S.ec[id]||{}).l||[]))if(!seen.has(e.i))cand.push(mk(e,id,lab))}
+    const chosen=[],recent=[...S.recent,...S.queue.map(e=>e.showId)];
+    for(let i=0;i<(n<2?3:12)&&cand.length;i++){
+      const prev=chosen[chosen.length-1]||S.queue[S.queue.length-1];let best=null,bs=-9;
+      for(const e of cand){let s=e.k;
+        if(chosen.filter(c=>c.showId===e.showId).length>=2)continue;
+        if(recent.includes(e.showId)||chosen.some(c=>c.showId===e.showId))s-=2;
+        if(prev&&prev.topic===e.topic)s-=.5;
+        s-=.2*chosen.filter(c=>c.topic===e.topic).length;
+        if(s>bs){bs=s;best=e}}
+      if(!best)break;chosen.push(best);cand.splice(cand.indexOf(best),1)}
+    const bt=S.topics.find(t=>t.id==='book');
+    if(bt&&bt.on&&n>1){try{const it=await bookItem();if(it)chosen.splice(Math.min(2+(Math.random()*4|0),chosen.length),0,it)}catch(e){}}
+    S.queue.push(...chosen);
+    const ks=Object.keys(S.ec);if(ks.length>70)ks.sort((a,b)=>S.ec[a].t-S.ec[b].t).slice(0,ks.length-70).forEach(k=>delete S.ec[k]);
+    save();status(S.queue.length?'':'Keine Folgen gefunden. Internet an? Themen prüfen.');
+  }finally{busy=0}
+}
+function learn(e,r,l,w=1){const t=S.st[e.showId]||(S.st[e.showId]={n:0,p:0});t.n+=w;t.p+=r*w;S.sn[e.showId]=e.show;S.tw[e.topic]=Math.min(4,Math.max(.25,(S.tw[e.topic]||1)*Math.exp((r-.5)*.6*w)));hist(e,l)}
+function hist(e,r){S.hist.unshift({t:e.title,r});S.hist=S.hist.slice(0,30);save()}
+
+/* ---------- Wiedergabe ---------- */
+let cur=null,errs=0,last=0,sleepT=0,sleepM=0;
+const mark=()=>{const on=cur&&S.saved.some(x=>x.id===cur.id);$('#fav').textContent=on?'★ Gemerkt':'Merken'};
+const savePos=()=>{if(cur&&A.duration){S.pos[cur.id]=A.currentTime;S.cur=cur;save()}};
+function show(e){$('#title').textContent=e.title;$('#show').textContent=e.show+', '+e.mins+' Min';$('#art').src=e.art;$('#reason').hidden=false;$('#reason').textContent='Warum? '+e.why[0];mark();
+  if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:e.title,artist:e.show,artwork:[{src:e.art,sizes:'600x600'}]})}
+function load(e,go){
+  cur=e;S.cur=e;save();A.src=e.url;A.playbackRate=S.speed;const p=S.pos[e.id]||0;
+  $('#cur').textContent=fmt(p);$('#seek').value=p;status(p>5?'Weiter bei '+fmt(p):'');
+  A.addEventListener('loadedmetadata',()=>{if(p>5&&p<A.duration-10)A.currentTime=p},{once:true});
+  show(e);if(go)A.play().catch(()=>{});
+}
+async function next(go,why){
+  if(cur){const f=A.duration?A.currentTime/A.duration:0;
+    if(why==='done')learn(cur,1,'zu Ende gehört');else if(why==='skip'&&f<.2)learn(cur,0,'früh weitergeklickt');else hist(cur,'teilweise gehört');
+    S.recent.push(cur.showId);S.recent=S.recent.slice(-10);
+    S.queue=S.queue.filter(x=>x.id!==cur.id);S.played.push(cur.id);S.played=S.played.slice(-2000);delete S.pos[cur.id];S.cur=null;
+    const b=cur.kind==='book'&&S.bk[cur.bid];
+    if(b){if(why==='skip'&&f<.2){b.sk=(b.sk||0)+1;if(b.sk>=2)b.done=1}else{b.i=cur.ci+1;if(b.i>=b.ch.length)b.done=1}
+      if(!b.done)S.queue.splice(Math.min(1,S.queue.length),0,chap(b,b.i))}
+    save()}
+  if(S.queue.length<6){if(S.queue.length)refill();else await refill(1)}
+  if(S.queue.length)load(S.queue[0],go);else{cur=null;A.removeAttribute('src');$('#title').textContent='Nichts gefunden'}
+}
+async function init(){
+  if(S.cur&&!S.played.includes(S.cur.id)){load(S.cur,false);if(S.queue.length<6)refill();return}
+  if(!S.queue.length)await refill(1);
+  if(!S.queue.length)await refill(2);
+  if(S.queue.length){load(S.queue[0],false);refill()}else $('#title').textContent='Nichts gefunden'}
+const skip=d=>{A.currentTime=Math.max(0,Math.min(A.duration||1e9,A.currentTime+d))};
+
+/* ---------- Ziel, Serie, Woche ---------- */
+const day=d=>d.toLocaleDateString('sv');
+function stat(){const t=S.log[day(new Date())]||0,g=S.goal*60;let n=0,d=new Date();if(t<g)d.setDate(d.getDate()-1);while((S.log[day(d)]||0)>=g){n++;d.setDate(d.getDate()-1)}
+  $('#gbar').style.width=Math.min(100,t/g*100)+'%';$('#stat').textContent=Math.round(t/60)+' von '+S.goal+' Min'+(n?', Serie '+n+' Tage':'')}
+let tick=0;setInterval(()=>{if(!A.paused&&cur){const k=day(new Date());S.log[k]=(S.log[k]||0)+1;if(++tick%15==0){save();stat()}}},1000);
+
+/* ---------- Ansichten ---------- */
+function renderWhy(){
+  const q=S.queue.filter(e=>!cur||e.id!==cur.id).slice(0,8),tops=Object.entries(S.tw).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const nm=f=>Object.entries(S.st).filter(([k,v])=>f(v,k)).map(([k])=>S.sn[k]).filter(Boolean);
+  const liked=nm(v=>v.n>=2&&v.p/v.n>=.7),dis=nm((v,k)=>hidden(k));
+  $('#whyb').innerHTML='<div class="shh"><h3>Mein Programm</h3><button class="ghost" data-close aria-label="Schließen">✕</button></div>'+
+   (cur?'<h4>Warum läuft das gerade?</h4><ul class="wy">'+cur.why.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>':'')+
+   '<h4>Als Nächstes</h4>'+(q.length?q.map(e=>'<div class="qi"><button data-play="'+e.id+'"><b>'+esc(e.title)+'</b><small>'+esc(e.show)+', '+e.mins+' Min</small><small>'+esc(e.why.slice(0,3).join(' – '))+'</small></button><button data-rm="'+e.id+'" aria-label="Entfernen">✕</button></div>').join(''):'<p class="mu">Noch nichts geplant.</p>')+
+   '<h4>Was ich über dich gelernt habe</h4>'+(tops.length?tops.map(([l,w])=>'<div class="lw"><span>'+esc(l)+'</span><div class="bar"><i style="width:'+Math.round(w/4*100)+'%"></i></div></div>').join(''):'<p class="mu">Noch nichts. Hör ein paar Folgen und gib Feedback.</p>')+
+   (liked.length?'<p class="mu">Gemochte Podcasts: '+esc(liked.join(', '))+'</p>':'')+(dis.length?'<p class="mu">Ausgeblendet: '+esc(dis.join(', '))+'</p>':'')+
+   '<h4>Zuletzt</h4>'+(S.hist.length?S.hist.slice(0,8).map(h=>'<p class="mu">'+esc(h.t)+' ('+esc(h.r)+')</p>').join(''):'<p class="mu">Noch nichts gehört.</p>')+
+   '<h4>So wähle ich aus</h4><p class="mu">Jede Folge dauert höchstens 30 Minuten. Ich mische handverlesene Podcasts, neu entdeckte Podcasts zu deinen Themen und gemeinfreie Hörbücher, die du Kapitel für Kapitel weiterhörst. Zu Ende gehört, Merken und „Mehr davon“ zählen positiv, früh weitergeklickt und „Weniger davon“ negativ. Etwa '+S.ex+' % der Vorschläge sind Entdeckungen außerhalb deiner Themen. Podcasts und Themen wechseln sich ab, schlecht bewertete Podcasts verschwinden.</p>';
+}
+function renderCfg(){
+  const wk=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);wk.push([d,S.log[day(d)]||0])}
+  const mx=Math.max(S.goal*60,...wk.map(x=>x[1]));
+  $('#week').innerHTML=wk.map(([d,v])=>'<div><i style="height:'+Math.max(4,v/mx*58)+'px"></i><span>'+d.toLocaleDateString('de',{weekday:'short'})+'</span></div>').join('');
+  $('#langs').innerHTML=[['de','Deutsch'],['en','English']].map(([k,v])=>'<button class="chip" data-l="'+k+'" aria-pressed="'+S.langs[k]+'">'+v+'</button>').join('');
+  $('#chips').innerHTML=S.topics.map((t,i)=>'<button class="chip" data-t="'+i+'" aria-pressed="'+t.on+'">'+esc(t.label)+'</button>').join('');
+  $('#saved').innerHTML=S.saved.length?S.saved.map(e=>'<li><button data-play="'+e.id+'">'+esc(e.title)+'</button><button data-unsave="'+e.id+'" aria-label="Entfernen">✕</button><small>'+esc(e.show)+'</small></li>').join(''):'<li class="mu">Noch nichts gemerkt</li>';
+  $('#goal').value=S.goal;$('#ex').value=S.ex;
+}
+document.addEventListener('click',ev=>{
+  const g=s=>ev.target.closest(s);let b;
+  if(g('[data-close]')){g('dialog').close();return}
+  if(b=g('[data-play]')){const id=b.dataset.play,e=S.queue.find(x=>x.id===id)||S.saved.find(x=>x.id===id);if(e){load(e,true);g('dialog').close()}return}
+  if(b=g('[data-rm]')){S.queue=S.queue.filter(x=>x.id!==b.dataset.rm);save();renderWhy();return}
+  if(b=g('[data-unsave]')){S.saved=S.saved.filter(x=>x.id!==b.dataset.unsave);save();renderCfg();mark();return}
+  if(b=g('[data-l]')){S.langs[b.dataset.l]=!S.langs[b.dataset.l];save();renderCfg();return}
+  if(b=g('[data-t]')){const t=S.topics[+b.dataset.t];t.on=!t.on;save();renderCfg()}
+});
+const openWhy=()=>{renderWhy();$('#why').showModal()};
+$('#open').onclick=openWhy;$('#reason').onclick=openWhy;
+$('#gear').onclick=()=>{renderCfg();$('#sheet').showModal()};
+$('#goal').onchange=e=>{S.goal=+e.target.value;save();stat();renderCfg()};
+$('#ex').onchange=e=>{S.ex=+e.target.value;save()};
+$('#addT').onclick=()=>{const q=$('#own').value.trim();if(!q)return;const l=$('#ol').value;S.topics.push(TH('c'+Date.now(),q,l==='de'?q:'',l==='en'?q:''));$('#own').value='';save();renderCfg()};
+$('#saveT').onclick=async()=>{S.queue=cur?[cur]:[];save();$('#sheet').close();await refill()};
+$('#reset').onclick=()=>{S.played=[];S.pos={};S.tw={};S.st={};S.sn={};S.hist=[];S.recent=[];S.bk={};S.bq={};save();status('Gelerntes gelöscht')};
+$('#bk').onclick=()=>{savePos();navigator.clipboard.writeText(JSON.stringify(S)).then(()=>status('Backup kopiert. Heb es in einer Notiz auf.'),()=>status('Kopieren nicht erlaubt.'))};
+$('#rs').onclick=()=>{const t=prompt('Backup hier einfügen');if(!t)return;try{S=Object.assign({},DEF,JSON.parse(t));save();location.reload()}catch(e){status('Das war kein gültiges Backup.')}};
+
+/* ---------- Steuerung ---------- */
+$('#fav').onclick=()=>{if(!cur)return;const has=S.saved.some(x=>x.id===cur.id);S.saved=has?S.saved.filter(x=>x.id!==cur.id):[cur,...S.saved];if(!has)learn(cur,1,'gemerkt');save();mark()};
+$('#up').onclick=()=>{if(cur){learn(cur,1,'Mehr davon');status('Mehr davon. Das merke ich mir.')}};
+$('#down').onclick=()=>{if(!cur)return;learn(cur,0,'Weniger davon',2);next(true).then(()=>status('Weniger davon. Das merke ich mir.'))};
+$('#sleep').onclick=()=>{const v=[0,15,30,60];sleepM=v[(v.indexOf(sleepM)+1)%v.length];clearTimeout(sleepT);if(sleepM)sleepT=setTimeout(()=>A.pause(),sleepM*6e4);$('#sleep').textContent=sleepM?'Timer '+sleepM+' Min':'Timer aus'};
+$('#play').onclick=()=>A.paused?A.play().catch(()=>{}):A.pause();
+$('#back').onclick=()=>skip(-15);$('#fwd').onclick=()=>skip(30);$('#next').onclick=()=>next(true,'skip');
+$('#speed').onclick=()=>{const v=[1,1.25,1.5,1.75,2];S.speed=v[(v.indexOf(S.speed)+1)%v.length];A.playbackRate=S.speed;$('#speed').textContent=S.speed+'×';save()};
+$('#seek').oninput=e=>{A.currentTime=+e.target.value};
+A.onplay=()=>{$('#play').innerHTML=IC.pause;$('#play').setAttribute('aria-label','Pause');errs=0;status('')};
+A.onpause=()=>{$('#play').innerHTML=IC.play;$('#play').setAttribute('aria-label','Abspielen');savePos()};
+A.onended=()=>next(true,'done');
+A.onerror=()=>{if(++errs<4){status('Folge nicht abspielbar, springe weiter …');next(true)}else status('Abspielen klappt gerade nicht. Internet prüfen.')};
+A.onloadedmetadata=()=>{$('#seek').max=A.duration||1;$('#dur').textContent=fmt(A.duration)};
+A.ontimeupdate=()=>{$('#seek').value=A.currentTime;$('#cur').textContent=fmt(A.currentTime);if(cur&&Date.now()-last>4000){last=Date.now();savePos()}};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)savePos()});addEventListener('pagehide',savePos);
+if('mediaSession' in navigator){const m=navigator.mediaSession;m.setActionHandler('play',()=>A.play());m.setActionHandler('pause',()=>A.pause());m.setActionHandler('nexttrack',()=>next(true,'skip'));m.setActionHandler('seekbackward',()=>skip(-15));m.setActionHandler('seekforward',()=>skip(30))}
+$('#speed').textContent=S.speed+'×';stat();
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+init();
+</script>
+</body>
+</html>
